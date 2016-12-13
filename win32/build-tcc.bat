@@ -10,12 +10,14 @@ echo>..\config.h #define TCC_VERSION "%VERSION%"
 
 @set target=-DTCC_TARGET_PE -DTCC_TARGET_I386
 @set CC=gcc -m32 -Os -s -fno-strict-aliasing
+@set TCC=tcc -m32 -s -fno-strict-aliasing
 @set P=32
 @goto tools
 
 :x86_64
 @set target=-DTCC_TARGET_PE -DTCC_TARGET_X86_64
 @set CC=gcc -m64 -Os -s -fno-strict-aliasing
+@set TCC=tcc -m64 -s -fno-strict-aliasing
 @set P=64
 @goto tools
 
@@ -65,3 +67,9 @@ if not exist doc md doc
 copy tcc-win32.txt doc
 echo>..\config.texi @set VERSION %VERSION%
 makeinfo --html --no-split -o doc\tcc-doc.html ../tcc-doc.texi || echo *** tcc-doc.html was not built ***
+
+:recompile
+%TCC% %target% tools/tiny_impdef.c -o tiny_impdef.exe
+%TCC% %target% tools/tiny_libmaker.c -o tiny_libmaker.exe
+%TCC% %target% ../tcc.c -o tcc2.exe -ltcc -Llibtcc
+move /Y tcc2.exe tcc.exe
